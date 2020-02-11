@@ -35,6 +35,7 @@ export default class NoteContentEditor extends Component {
       hasRemoteUpdate: PropTypes.bool.isRequired,
       version: PropTypes.string,
     }),
+    detectLanguage: PropTypes.bool.isRequired,
     filter: PropTypes.string.isRequired,
     noteId: PropTypes.string,
     onChangeContent: PropTypes.func.isRequired,
@@ -89,6 +90,7 @@ export default class NoteContentEditor extends Component {
       this.props.content.text,
       this.props.filter
     ),
+    lang: undefined,
   };
 
   editorKey = 0;
@@ -152,16 +154,51 @@ export default class NoteContentEditor extends Component {
   };
 
   componentDidUpdate(prevProps) {
-    const { content, filter, noteId, spellCheckEnabled } = this.props;
+    const {
+      content,
+      detectLanguage,
+      filter,
+      noteId,
+      spellCheckEnabled,
+    } = this.props;
+
     const { editorState } = this.state;
 
-    // To immediately reflect the changes to the spell check setting,
-    // we must remount the Editor and force update. The remount is
-    // done by changing the `key` prop on the Editor.
-    // https://stackoverflow.com/questions/35792275/
-    if (spellCheckEnabled !== prevProps.spellCheckEnabled) {
-      this.editorKey += 1;
-      this.forceUpdate();
+    const updateLanguage = () => {
+      const minimumContentLength = 10;
+      if (!detectLanguage || content.text.length < minimumContentLength) {
+        window.spellCheckHandler.switchLanguage(navigator.language);
+        this.setState({ lang: undefined });
+      } else {
+        // Auto-detect the note content language to switch spellchecker
+        window.spellCheckHandler.provideHintText(content.text).then(() => {
+          // Use the auto-detected language to set a `lang` attribute on the
+          // note, which helps Chromium in Electron pick an appropriate font
+          this.setState({
+            lang: window.spellCheckHandler.currentSpellcheckerLanguage,
+          });
+        });
+      }
+    };
+
+    // Only relevant in Electron
+    if (window.spellCheckHandler) {
+      // To immediately reflect the changes to the spell check setting,
+      // we must remount the Editor and force update. The remount is
+      // done by changing the `key` prop on the Editor.
+      // https://stackoverflow.com/questions/35792275/
+      if (spellCheckEnabled !== prevProps.spellCheckEnabled) {
+        this.editorKey += 1;
+        this.forceUpdate();
+        updateLanguage();
+      }
+
+      if (
+        noteId !== prevProps.noteId ||
+        detectLanguage !== prevProps.detectLanguage
+      ) {
+        updateLanguage();
+      }
     }
 
     // If another note/revision is selected,
@@ -302,6 +339,7 @@ export default class NoteContentEditor extends Component {
   render() {
     return (
       <div
+        lang={this.state.lang}
         onCopy={this.copyPlainText}
         onCut={this.copyPlainText}
         style={{ height: '100%' }}

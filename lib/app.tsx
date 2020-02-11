@@ -89,6 +89,7 @@ const mapDispatchToProps: S.MapDispatch<
         'setAccountName',
         'toggleAutoHideMenuBar',
         'toggleFocusMode',
+        'toggleLanguageDetection',
         'toggleSpellCheck',
       ]),
       dispatch
