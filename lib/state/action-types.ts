@@ -73,6 +73,7 @@ export type ToggleRevisions = Action<'REVISIONS_TOGGLE'>;
 export type ToggleTagDrawer = Action<'TAG_DRAWER_TOGGLE', { show: boolean }>;
 export type ToggleTagEditing = Action<'TAG_EDITING_TOGGLE'>;
 export type SelectNote = Action<'SELECT_NOTE', { note: T.NoteEntity }>;
+export type SelectTag = Action<'SELECT_TAG', { tag: T.TagEntity }>;
 
 export type ActionType =
   | CreateNote
@@ -82,6 +83,7 @@ export type ActionType =
   | FocusSearchField
   | Search
   | SelectNote
+  | SelectTag
   | SetAccountName
   | SetAuth
   | SetAutoHideMenuBar
@@ -192,8 +194,6 @@ type LegacyAction =
   | Action<'App.onNoteBeforeRemoteUpdate', { noteId: T.EntityId }>
   | Action<'App.preferencesLoaded', { analyticsEnabled: boolean }>
   | Action<'App.selectNote', { note: T.NoteEntity; hasRemoteUpdate: boolean }>
-  | Action<'App.selectTag', { tag: T.TagEntity }>
-  | Action<'App.selectTagAndSElectFirstNote'>
   | Action<'App.selectTrash'>
   | Action<'App.setRevision', { revision: T.NoteEntity }>
   | Action<'App.setShouldPrintNote', { shouldPrint: boolean }>

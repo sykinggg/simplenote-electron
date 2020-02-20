@@ -21,7 +21,7 @@ const editingTags: A.Reducer<boolean> = (state = false, action) => {
     case 'TAG_EDITING_TOGGLE':
       return !state;
     case 'App.selectNote':
-    case 'App.selectTag':
+    case 'SELECT_TAG':
     case 'App.selectTrash':
     case 'App.showAllNotes':
     case 'NAVIGATION_TOGGLE':
@@ -46,7 +46,7 @@ const listTitle: A.Reducer<T.TranslatableString> = (
       return 'All Notes';
     case 'App.selectTrash':
       return 'Trash';
-    case 'App.selectTag':
+    case 'SELECT_TAG':
       return action.tag.data.name;
     default:
       return state;
@@ -74,6 +74,18 @@ const unsyncedNoteIds: A.Reducer<T.EntityId[]> = (
 const searchQuery: A.Reducer<string> = (state = '', action) =>
   'SEARCH' === action.type ? action.searchQuery : state;
 
+const selectedTag: A.Reducer<T.TagEntity | null> = (state = null, action) => {
+  switch (action.type) {
+    case 'App.selectTrash':
+    case 'App.showAllNotes':
+      return null;
+    case 'SELECT_TAG':
+      return action.tag;
+    default:
+      return state;
+  }
+};
+
 const simperiumConnected: A.Reducer<boolean> = (state = false, action) =>
   'SIMPERIUM_CONNECTION_STATUS_TOGGLE' === action.type
     ? action.simperiumConnected
@@ -97,7 +109,7 @@ const showNavigation: A.Reducer<boolean> = (state = false, action) => {
     case 'NAVIGATION_TOGGLE':
       return !state;
 
-    case 'App.selectTag':
+    case 'SELECT_TAG':
     case 'App.selectTrash':
     case 'App.showAllNotes':
       return false;
@@ -125,7 +137,7 @@ const showTrash: A.Reducer<boolean> = (state = false, action) => {
     case 'App.selectTrash':
       return true;
     case 'CREATE_NOTE':
-    case 'App.selectTag':
+    case 'SELECT_TAG':
     case 'App.showAllNotes': {
       return false;
     }
@@ -143,7 +155,7 @@ const note: A.Reducer<T.NoteEntity | null> = (state = null, action) => {
     case 'App.emptyTrash':
     case 'App.showAllNotes':
     case 'App.selectTrash':
-    case 'App.selectTag':
+    case 'SELECT_TAG':
       return null;
     case 'SELECT_NOTE':
       return action.note;
@@ -164,6 +176,7 @@ export default combineReducers({
   listTitle,
   note,
   searchQuery,
+  selectedTag,
   showNavigation,
   showNoteInfo,
   showNoteList,
